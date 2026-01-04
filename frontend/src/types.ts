@@ -25,5 +25,6 @@ export interface Game extends Identified {
     moves: Move[],
     white_elo?: number,
     black_elo?: number,
+} 
 
-}
+export type GameItem = Omit<Game, "moves">;

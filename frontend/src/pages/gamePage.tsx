@@ -21,7 +21,7 @@ export const GamePage = ()=>{
   const correctGuesses = useRef<number>(0);
 
   useEffect(()=>{
-
+    console.log('loading game');
     const loadGame = async()=>{
       const game = await getGameById(gameId!);
       if(!game) return;
@@ -41,7 +41,6 @@ export const GamePage = ()=>{
       }
 
       setMoves(newMoves);
-      await loadInitialPositions();
     }
 
     loadGame();
@@ -57,6 +56,11 @@ export const GamePage = ()=>{
     
 
   }, []);
+
+  useEffect(()=>{
+    if(moves.length === 0) return;
+    loadInitialPositions();
+  }, [moves])
 
   const handlePieceDrop = ({piece, sourceSquare, targetSquare} :PieceDropHandlerArgs)=>{
 
@@ -85,7 +89,6 @@ export const GamePage = ()=>{
   }
 
   const loadInitialPositions = async()=>{
-    if(moves.length === 0) return;
     const chessboardCopy = new Chess(chess.fen());
     for(let i = 1; i<= Math.min(15, moves.length); ++i){
       chessboardCopy.move(moves[i].whiteMove);
@@ -100,7 +103,6 @@ export const GamePage = ()=>{
         moveNumber.current+=1;
     }
         
-
     
     setChess(new Chess(chessboardCopy.fen()));
   }

@@ -4,6 +4,7 @@ import { type PieceDropHandlerArgs, Chessboard } from "react-chessboard";
 import { getGameById } from "../api/games";
 import { TURNS } from "../enum";
 import { useParams } from "react-router-dom";
+import type { Game } from "../types";
 
 export const GamePage = ()=>{
 
@@ -18,6 +19,8 @@ export const GamePage = ()=>{
   const [chess, setChess] = useState(new Chess());
   const moveNumber = useRef<number>(0);
   const [moves, setMoves] = useState<CorrectMoveArrayType[]>([]);
+  const [gameObj, setGameObj] = useState<Game>();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const correctGuesses = useRef<number>(0);
 
   useEffect(()=>{
@@ -25,7 +28,10 @@ export const GamePage = ()=>{
     const loadGame = async()=>{
       const game = await getGameById(gameId!);
       if(!game) return;
+      setGameObj(game);
+      setIsLoading(false);
       const gameMoves = game.moves;
+      
       const newMoves = new Array(gameMoves.length+1);
       
       for(let i = 0; i<gameMoves.length; i+=2){
@@ -142,18 +148,34 @@ export const GamePage = ()=>{
 
 
   return (
-    <>
-    <div>
-      <Chessboard options={{
-        position: chess.fen(),
-        onPieceDrop: handlePieceDrop,
-        showAnimations: true,
-        animationDurationInMs: 1000,
-        boardOrientation: (color === TURNS.WHITE) ? 'white' : 'black',
-    
-      }} />
+
+    <div
+      style={{
+        height: '100vh',
+        width: '100vw',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <div
+        style={{
+          width: 'min(70vw, 70vh)',
+          aspectRatio: '1/1'
+        }}
+      >
+
+        {isLoading ? <h2>Loading...</h2> : color === TURNS.WHITE ? <h2>{gameObj?.black_player}</h2> : <h2>{gameObj?.white_player}</h2>}
+        <Chessboard options={{
+          position: chess.fen(),
+          onPieceDrop: handlePieceDrop,
+          showAnimations: true,
+          animationDurationInMs: 1000,
+          boardOrientation: (color === TURNS.WHITE) ? 'white' : 'black',
+        }}/>
+        {isLoading ? <h2>Loading...</h2> : color === TURNS.WHITE ? <h2>{gameObj?.white_player}</h2> : <h2>{gameObj?.black_player}</h2>}
+      </div>
     </div>
-    </>
   )
 
 };
